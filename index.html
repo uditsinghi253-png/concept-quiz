@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robotics Kahoot Quiz</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="brand" onclick="goHome()">
+      <span class="brand-logo">ROBOTICS!</span>
+      <span class="brand-badge">MCQ Quiz</span>
+    </div>
+    <div class="header-nav">
+      <button class="nav-btn" onclick="goHome()">🏠 Home / Topics</button>
+      <button class="icon-btn" id="mute-btn" onclick="toggleMute()" title="Toggle Sound">🔊</button>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+
+    <!-- Screen 1: Topic Selection / Lobby -->
+    <section id="lobby-screen" class="view-section active">
+      <div class="lobby-card">
+        <div class="lobby-hero">
+          <h1 class="hero-title">Robotics Kahoot Quiz</h1>
+          <p class="hero-subtitle">Select a topic below to start practicing</p>
+        </div>
+
+        <div class="section-title">
+          <span>Filter by Topic</span>
+          <span class="count-badge" id="selected-count-label">688 questions selected</span>
+        </div>
+
+        <!-- Quick filter actions -->
+        <div class="topic-controls">
+          <button class="text-btn" onclick="selectAllTopics(true)">Select All</button>
+          <span style="color: rgba(255,255,255,0.4)">|</span>
+          <button class="text-btn" onclick="selectAllTopics(false)">Clear All</button>
+        </div>
+
+        <!-- 14 Topic Chips Grid -->
+        <div class="topics-grid" id="topics-container"></div>
+
+        <!-- Settings: Question Count & Timer -->
+        <div class="settings-row">
+          <div class="setting-group">
+            <label class="setting-label">Questions</label>
+            <div class="pill-selector" id="count-selector">
+              <div class="pill-option" data-val="10" onclick="setCount(10)">10</div>
+              <div class="pill-option active" data-val="20" onclick="setCount(20)">20</div>
+              <div class="pill-option" data-val="50" onclick="setCount(50)">50</div>
+              <div class="pill-option" data-val="all" onclick="setCount('all')">All</div>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">Timer</label>
+            <div class="pill-selector" id="timer-selector">
+              <div class="pill-option" data-val="10" onclick="setTimerSec(10)">10s</div>
+              <div class="pill-option active" data-val="20" onclick="setTimerSec(20)">20s</div>
+              <div class="pill-option" data-val="30" onclick="setTimerSec(30)">30s</div>
+              <div class="pill-option" data-val="0" onclick="setTimerSec(0)">None</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="start-quiz-container">
+          <button class="btn-start" onclick="startQuiz()">
+            <span>START QUIZ</span>
+            <span>➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 2: Active Question Screen -->
+    <section id="quiz-screen" class="view-section">
+      <div class="quiz-header-bar">
+        <div class="quiz-meta-left">
+          <span class="question-counter" id="q-progress">1 / 20</span>
+          <span class="current-topic-badge" id="q-topic-badge">Topic</span>
+        </div>
+
+        <div class="quiz-meta-right">
+          <div class="score-display">
+            <span class="score-val" id="score-val">0</span>
+            <span class="streak-pill" id="streak-pill">🔥 Streak: 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="timer-container" id="timer-wrap">
+        <div class="timer-circle-wrap">
+          <svg class="timer-svg" viewBox="0 0 72 72">
+            <circle class="timer-circle-bg" cx="36" cy="36" r="30"></circle>
+            <circle class="timer-circle-progress" id="timer-bar" cx="36" cy="36" r="30" stroke-dasharray="188.4" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="timer-number" id="timer-display">20</div>
+        </div>
+      </div>
+
+      <!-- Question Text -->
+      <div class="question-box">
+        <h2 class="question-text" id="question-text">Question prompt will appear here...</h2>
+      </div>
+
+      <!-- Kahoot 4 Answer Buttons -->
+      <div class="answers-grid">
+        <button class="answer-card opt-A" id="btn-opt-A" onclick="handleAnswer('A')">
+          <div class="shape-badge">▲</div>
+          <div class="opt-text" id="text-opt-A">Option A</div>
+          <div class="key-hint">1 / A</div>
+        </button>
+
+        <button class="answer-card opt-B" id="btn-opt-B" onclick="handleAnswer('B')">
+          <div class="shape-badge">◆</div>
+          <div class="opt-text" id="text-opt-B">Option B</div>
+          <div class="key-hint">2 / B</div>
+        </button>
+
+        <button class="answer-card opt-C" id="btn-opt-C" onclick="handleAnswer('C')">
+          <div class="shape-badge">●</div>
+          <div class="opt-text" id="text-opt-C">Option C</div>
+          <div class="key-hint">3 / C</div>
+        </button>
+
+        <button class="answer-card opt-D" id="btn-opt-D" onclick="handleAnswer('D')">
+          <div class="shape-badge">◼</div>
+          <div class="opt-text" id="text-opt-D">Option D</div>
+          <div class="key-hint">4 / D</div>
+        </button>
+      </div>
+
+      <!-- Feedback / Reveal Box -->
+      <div class="reveal-feedback-box" id="reveal-box">
+        <div class="feedback-banner">
+          <div class="feedback-status" id="feedback-status">CORRECT!</div>
+          <div class="points-earned" id="feedback-points">+950 pts</div>
+        </div>
+        <div class="explanation-card" id="explanation-box" style="display:none;">
+          <div class="explanation-label">Explanation & Notes:</div>
+          <div id="explanation-text"></div>
+        </div>
+        <div class="reveal-actions">
+          <button class="btn-next" onclick="nextQuestion()">Next Question ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Results / Summary Screen -->
+    <section id="results-screen" class="view-section">
+      <div class="results-card">
+        <div class="results-trophy">🏆</div>
+        <h2>Quiz Complete!</h2>
+        <p class="results-subtitle" id="results-subtitle">Great job practicing robotics!</p>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-num" id="final-score">0</div>
+            <div class="stat-label">Final Score</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="final-accuracy">0%</div>
+            <div class="stat-label">Accuracy</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="final-correct">0 / 0</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="final-streak">0</div>
+            <div class="stat-label">Max Streak</div>
+          </div>
+        </div>
+
+        <div class="results-actions">
+          <button class="btn-start" onclick="restartQuiz()">Play Again 🔄</button>
+          <button class="btn-drill-missed" id="btn-retry-missed" onclick="retryMissed()" style="display:none;">
+            Practice Missed Questions (<span id="missed-count">0</span>) 🎯
+          </button>
+          <button class="btn-secondary" onclick="goHome()">Change Topics 📋</button>
+        </div>
+
+        <!-- Missed questions list -->
+        <div class="missed-list-wrapper" id="missed-wrapper" style="display:none;">
+          <div class="missed-title">
+            <span>Missed Questions Breakdown</span>
+          </div>
+          <div class="missed-items" id="missed-list"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="questions.js"></script>
+  <script src="audio.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
